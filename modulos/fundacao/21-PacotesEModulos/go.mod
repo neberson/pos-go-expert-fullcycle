@@ -1,3 +1,3 @@
-module github.com/neberson/pos-go-expert-fullcycle/modulos/fundacao/21-PacotesEModulos
+module PacotesEModulos
 
 go 1.24.4

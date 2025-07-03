@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/neberson/pos-go-expert-fullcycle/modulos/fundacao/21-PacotesEModulos/matematica"
+	"PacotesEModulos/matematica"
 )
 
 func main() {
