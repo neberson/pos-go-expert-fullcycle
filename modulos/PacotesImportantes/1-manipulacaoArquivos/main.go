@@ -57,6 +57,7 @@ func LerArquivoEmPedacos() {
 
 		fmt.Println(string(buffer[:n]))
 	}
+	arquivo2.Close()
 
 	err = os.Remove("arquivo.txt")
 	if err != nil {
