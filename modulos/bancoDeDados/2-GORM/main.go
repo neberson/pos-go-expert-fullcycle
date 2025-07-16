@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -33,4 +35,19 @@ func main() {
 	}
 
 	db.Create(&products)
+
+	//select one
+	var product Product
+	db.First(&product, 5)
+	fmt.Println(product)
+
+	db.First(&product, "name = ?", "Mouse")
+	fmt.Println(product)
+
+	//select all
+	var products2 []Product
+	db.Find(&products2)
+	for _, product := range products2 {
+		fmt.Println(product)
+	}
 }
