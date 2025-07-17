@@ -50,4 +50,24 @@ func main() {
 	for _, product := range products2 {
 		fmt.Println(product)
 	}
+
+	var products3 []Product
+	db.Limit(2).Offset(3).Find(&products3)
+	for _, product := range products3 {
+		fmt.Println(product)
+	}
+
+	//where
+	var products4 []Product
+	db.Where("price > ?", 50).Find(&products4)
+	for _, product := range products4 {
+		fmt.Println(product)
+	}
+
+	//where
+	var products5 []Product
+	db.Where("name LIKE ?", "%book%").Find(&products5)
+	for _, product := range products5 {
+		fmt.Println(product)
+	}
 }
