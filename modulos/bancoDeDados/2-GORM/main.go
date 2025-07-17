@@ -1,14 +1,23 @@
 package main
 
 import (
+	"fmt"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
+type Category struct {
+	ID   int `gorm:"primaryKey"`
+	Name string
+}
+
 type Product struct {
-	ID    int `gorm:"primaryKey"`
-	Name  string
-	Price float64
+	ID         int `gorm:"primaryKey"`
+	Name       string
+	Price      float64
+	CategoryID int
+	Category   Category
 	gorm.Model
 }
 
@@ -20,7 +29,26 @@ func main() {
 		panic(err)
 	}
 
-	db.AutoMigrate(&Product{})
+	db.AutoMigrate(&Category{}, &Product{})
+
+	//create category
+	category := Category{Name: "Eletronicos"}
+	db.Create(&category)
+
+	product := Product{
+		Name:       "Notebook",
+		Price:      1000.0,
+		CategoryID: category.ID,
+	}
+
+	db.Create(&product)
+
+	var products []Product
+
+	db.Preload("Category").Find(&products)
+	for _, v := range products {
+		fmt.Println(v)
+	}
 
 	// db.Create(&Product{
 	// 	Name:  "Notebook",
@@ -80,15 +108,15 @@ func main() {
 	// fmt.Println(p2.Name)
 	// db.Delete(&p2)
 
-	db.Create(&Product{
-		Name:  "Notebook",
-		Price: 1000.00,
-	})
+	// db.Create(&Product{
+	// 	Name:  "Notebook",
+	// 	Price: 1000.00,
+	// })
 
-	var p Product
-	db.First(&p, 1)
-	p.Name = "New Mouse"
-	db.Save(&p)
+	// var p Product
+	// db.First(&p, 1)
+	// p.Name = "New Mouse"
+	// db.Save(&p)
 
-	db.Delete(&p)
+	// db.Delete(&p)
 }
