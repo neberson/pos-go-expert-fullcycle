@@ -3,6 +3,7 @@ package main
 import (
 	database "client-server-api/internal/infra/database/sqlite"
 	"client-server-api/internal/services"
+	"client-server-api/pkg/entity/dto"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -37,7 +38,10 @@ func CotacaoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cotacaoDto := dto.CotacaoDto{}
+	cotacaoDto.Bid = cotacao.Usdbrl.Bid
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(cotacao)
+	json.NewEncoder(w).Encode(cotacaoDto)
 }
