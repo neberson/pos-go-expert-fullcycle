@@ -74,12 +74,12 @@ func BuscaCotacaoClient() (*dto.CotacaoDto, error) {
 		return nil, fmt.Errorf("erro ao ler o corpo da requisição (client): %v", err.Error())
 	}
 
-	var cotacao dto.CotacaoDto
+	var cotacao entity.Cotacao
 	if err = json.Unmarshal(body, &cotacao); err != nil {
 		return nil, fmt.Errorf("erro na conversão do corpo da requisição (client): %v", err.Error())
 	}
 
-	return &cotacao, nil
+	return &dto.CotacaoDto{Bid: cotacao.Usdbrl.Bid}, nil
 }
 
 func GravaArquivoCotacao(cotacao *dto.CotacaoDto) error {
