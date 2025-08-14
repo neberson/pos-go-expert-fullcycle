@@ -22,3 +22,7 @@ Content-Type: application/json
 ###
 DELETE http://localhost:8000/products/19c98096-55cc-44fa-b28d-5ed73c45f2d9
 Content-Type: application/json
+
+###
+GET http://localhost:8000/products
+Content-Type: application/json

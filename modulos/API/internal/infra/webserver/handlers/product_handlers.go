@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/API/internal/dto"
@@ -118,4 +119,31 @@ func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
+	page := chi.URLParam(r, "page")
+	limit := r.URL.Query().Get("limit")
+
+	pageInt, err := strconv.Atoi(page)
+	if err != nil || pageInt < 1 {
+		pageInt = 0
+	}
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil || limitInt < 1 {
+		limitInt = 0
+	}
+
+	sort := r.URL.Query().Get("sort")
+
+	products, err := h.ProductDB.FindAll(pageInt, limitInt, sort)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(products)
 }
