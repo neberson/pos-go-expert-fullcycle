@@ -9,9 +9,11 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth"
 	"github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/API/configs"
+	_ "github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/API/docs" // Import the generated Swagger docs
 	"github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/API/internal/entity"
 	"github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/API/internal/infra/database"
 	"github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/API/internal/infra/webserver/handlers"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/gorm"
 )
 
@@ -26,7 +28,7 @@ import (
 // @license.name  Full Cycle License
 // @license.url   http://www.fullcycle.com
 
-// @host      localhost:8080
+// @host      localhost:8000
 // @BasePath  /
 
 // @securityDefinitions.apikey ApiKeyAuth
@@ -67,6 +69,8 @@ func main() {
 
 	r.Post("/users", userHandler.CreateUser)
 	r.Post("/users/generation_token", userHandler.GetJwt)
+
+	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
 
 	http.ListenAndServe(":8000", r)
 }

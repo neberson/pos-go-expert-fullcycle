@@ -11,6 +11,10 @@ import (
 	"github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/API/internal/infra/database"
 )
 
+type Error struct {
+	Message string `json:"message"`
+}
+
 type UserHandler struct {
 	UserDB      database.UserInterface
 	Jwt         *jwtauth.JWTAuth
@@ -61,6 +65,17 @@ func (h *UserHandler) GetJwt(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// CreateUser godoc
+// @Summary Create a new user
+// @Description Create a new user with the provided information
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body dto.CreateUserInput true "user request"
+// @Success 201
+// @Failure 400 {object} Error
+// @Failure 500 {object} Error
+// @Router /users [post]
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user dto.CreateUserInput
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
@@ -71,12 +86,16 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	u, err := entity.NewUser(user.Name, user.Email, user.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		error := Error{Message: err.Error()}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 
 	err = h.UserDB.Create(u)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		error := Error{Message: err.Error()}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
