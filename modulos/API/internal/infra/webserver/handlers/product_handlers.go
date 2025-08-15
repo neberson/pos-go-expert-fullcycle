@@ -78,7 +78,7 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path string true "Product ID" Format(uuid)
 // @Success 200 {object} entity.Product
-// @Sucess 204 {object} Error "No content"
+// @Failure 204 {object} Error "No content"
 // @Failure 400 {object} Error
 // @Failure 500 {object} Error
 // @Router /products/{id} [get]
@@ -108,10 +108,28 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(product)
 }
 
+// Update Product godoc
+// @Summary Update product
+// @Description Update product
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param id path string true "Product ID" Format(uuid)
+// @Param request body dto.CreateProductInput true "product request"
+// @Success 201 {object} dto.CreateProductInput
+// @Failure 204 {object} Error "No content"
+// @Failure 400 {object} Error
+// @Failure 500 {object} Error
+// @Router /products/{id} [put]
+// @Security ApiKeyAuth
 func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		error := Error{
+			Message: "Product ID is required",
+		}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 
@@ -119,24 +137,40 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		error := Error{
+			Message: "Invalid request body: " + err.Error(),
+		}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 
 	product.ID, err = entityPkg.ParseID(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		error := Error{
+			Message: "Invalid product ID: " + err.Error(),
+		}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 
 	_, err = h.ProductDB.FindById(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNoContent)
+		error := Error{
+			Message: "Product not found",
+		}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 
 	err = h.ProductDB.Update(&product)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		error := Error{
+			Message: "Failed to update product: " + err.Error(),
+		}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 

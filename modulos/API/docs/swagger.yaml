@@ -143,6 +143,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/entity.Product'
+        "204":
+          description: No content
+          schema:
+            $ref: '#/definitions/handlers.Error'
         "400":
           description: Bad Request
           schema:
@@ -154,6 +158,47 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get a product by ID
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Update product
+      parameters:
+      - description: Product ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: product request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateProductInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CreateProductInput'
+        "204":
+          description: No content
+          schema:
+            $ref: '#/definitions/handlers.Error'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Update product
       tags:
       - products
   /users:
