@@ -146,6 +146,19 @@ func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// Get Product godoc
+// @Summary get all products
+// @Description get all products with pagination and sorting
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param page query string false "Page number"
+// @Param limit query string false "Limit per page"
+// @Success 200 {array} entity.Product
+// @Failure 400 {object} Error
+// @Failure 500 {object} Error
+// @Router /products [get]
+// @Security ApiKeyAuth
 func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	page := chi.URLParam(r, "page")
 	limit := r.URL.Query().Get("limit")
@@ -164,7 +177,20 @@ func (h *ProductHandler) GetAllProducts(w http.ResponseWriter, r *http.Request) 
 
 	products, err := h.ProductDB.FindAll(pageInt, limitInt, sort)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		errorResponse := Error{
+			Message: "Failed to retrieve products: " + err.Error(),
+		}
+		json.NewEncoder(w).Encode(errorResponse)
+		return
+	}
+
+	if len(products) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		errorPResponse := Error{
+			Message: "No products found",
+		}
+		json.NewEncoder(w).Encode(errorPResponse)
 		return
 	}
 
