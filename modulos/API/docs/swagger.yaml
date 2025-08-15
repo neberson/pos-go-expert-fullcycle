@@ -1,0 +1,20 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    email: neberson_mtv@hotmail.com
+    name: Neberson Andrade
+  description: Product API with authentication.
+  license:
+    name: Full Cycle License
+    url: http://www.fullcycle.com
+  termsOfService: http://swagger.io/terms/
+  title: Go Expert API Example
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
