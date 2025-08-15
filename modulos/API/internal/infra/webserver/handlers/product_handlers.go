@@ -22,27 +22,52 @@ func NewProductHandler(db database.ProductInterface) *ProductHandler {
 	}
 }
 
+// Create Product godoc
+// @Summary Create a new product
+// @Description Create a new product with the given details
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param product body dto.CreateProductInput true "product request"
+// @Success 201 {object} dto.CreateProductInput
+// @Failure 400 {object} Error
+// @Failure 500 {object} Error
+// @Router /products [post]
+// @Security ApiKeyAuth
 func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var product dto.CreateProductInput
 	if err := json.NewDecoder(r.Body).Decode(&product); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		errorResponse := Error{
+			Message: "Invalid request body" + err.Error(),
+		}
+		json.NewEncoder(w).Encode(errorResponse)
 		return
 	}
 
 	p, err := entity.NewProduct(product.Name, product.Price)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		errorResponse := Error{
+			Message: "Invalid product data" + err.Error(),
+		}
+		json.NewEncoder(w).Encode(errorResponse)
 		return
 	}
 
 	err = h.ProductDB.Create(p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse := Error{
+			Message: "Failed to create product" + err.Error(),
+		}
+		json.NewEncoder(w).Encode(errorResponse)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(product)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(p)
 }
 
 func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
