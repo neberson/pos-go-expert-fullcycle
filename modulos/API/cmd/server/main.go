@@ -6,6 +6,7 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/jwtauth"
 	"github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/API/configs"
 	"github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/API/internal/entity"
 	"github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/API/internal/infra/database"
@@ -32,11 +33,17 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Post("/products", productHandler.CreateProduct)
-	r.Get("/products/{id}", productHandler.GetProducts)
-	r.Put("/products/{id}", productHandler.UpdateProduct)
-	r.Delete("/products/{id}", productHandler.DeleteProduct)
-	r.Get("/products", productHandler.GetAllProducts)
+
+	r.Route("/products", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(configs.TokenAuth))
+		r.Use(jwtauth.Authenticator)
+
+		r.Post("/", productHandler.CreateProduct)
+		r.Get("/", productHandler.GetAllProducts)
+		r.Get("/{id}", productHandler.GetProducts)
+		r.Put("/{id}", productHandler.UpdateProduct)
+		r.Delete("/{id}", productHandler.DeleteProduct)
+	})
 
 	r.Post("/users", userHandler.CreateUser)
 	r.Post("/users/generation_token", userHandler.GetJwt)
