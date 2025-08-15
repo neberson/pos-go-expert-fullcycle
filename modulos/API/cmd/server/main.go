@@ -62,7 +62,7 @@ func main() {
 
 		r.Post("/", productHandler.CreateProduct)
 		r.Get("/", productHandler.GetAllProducts)
-		r.Get("/{id}", productHandler.GetProducts)
+		r.Get("/{id}", productHandler.GetProduct)
 		r.Put("/{id}", productHandler.UpdateProduct)
 		r.Delete("/{id}", productHandler.DeleteProduct)
 	})

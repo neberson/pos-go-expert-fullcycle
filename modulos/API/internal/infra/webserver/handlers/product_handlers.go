@@ -70,15 +70,36 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p)
 }
 
-func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
+// Get Product godoc
+// @Summary Get a product by ID
+// @Description Get a product by its ID
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param id path string true "Product ID" Format(uuid)
+// @Success 200 {object} entity.Product
+// @Sucess 204 {object} Error "No content"
+// @Failure 400 {object} Error
+// @Failure 500 {object} Error
+// @Router /products/{id} [get]
+// @Security ApiKeyAuth
+func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		errorResponse := Error{
+			Message: "Product ID is required",
+		}
+		json.NewEncoder(w).Encode(errorResponse)
 		return
 	}
 	product, err := h.ProductDB.FindById(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNoContent)
+		errorResponse := Error{
+			Message: "Product not found",
+		}
+		json.NewEncoder(w).Encode(errorResponse)
 		return
 	}
 
