@@ -25,7 +25,9 @@ func (e *TestEvent) GetDateTime() time.Time {
 	return time.Now()
 }
 
-type TestEventHandler struct{}
+type TestEventHandler struct {
+	ID int
+}
 
 func (h *TestEventHandler) Handle(event EventInterface) {}
 
@@ -44,15 +46,30 @@ func (suite *EventDispatcherTestSuite) SetupTest() {
 	suite.event = TestEvent{Name: "test_event", Payload: "test_payload"}
 	suite.event2 = TestEvent{Name: "test_event_2", Payload: "test_payload_2"}
 
-	suite.handler = TestEventHandler{}
-	suite.handler2 = TestEventHandler{}
-	suite.handler3 = TestEventHandler{}
+	suite.handler = TestEventHandler{
+		ID: 1,
+	}
+	suite.handler2 = TestEventHandler{
+		ID: 2,
+	}
+	suite.handler3 = TestEventHandler{
+		ID: 3,
+	}
 
 	suite.eventDispatcher = NewEventDispatcher()
 }
 
 func (suite *EventDispatcherTestSuite) TestEventDispatcher_Register() {
-	assert.True(suite.T(), true)
+	err := suite.eventDispatcher.Register(suite.event.GetName(), &suite.handler)
+	suite.Nil(err)
+	suite.Equal(1, len(suite.eventDispatcher.handlers[suite.event.GetName()]))
+
+	err = suite.eventDispatcher.Register(suite.event.GetName(), &suite.handler2)
+	suite.Nil(err)
+	suite.Equal(2, len(suite.eventDispatcher.handlers[suite.event.GetName()]))
+
+	assert.Equal(suite.T(), &suite.handler, suite.eventDispatcher.handlers[suite.event.GetName()][0])
+	assert.Equal(suite.T(), &suite.handler2, suite.eventDispatcher.handlers[suite.event.GetName()][1])
 }
 
 func TestSuite(t *testing.T) {

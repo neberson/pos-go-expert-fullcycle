@@ -9,7 +9,7 @@ type EventInterface interface {
 }
 
 type EventHandlerInterface interface {
-	Handle(event EventInterface) error
+	Handle(event EventInterface)
 }
 
 type EventDispatcherInterface interface {
