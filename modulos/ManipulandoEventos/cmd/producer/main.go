@@ -1,6 +1,6 @@
 package main
 
-import "github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/ManipulandoEventos/pkg/rabbitmq"
+import "github.com/neberson/pos-go-expert-fullcycle/modulos/ManipulandoEventos/pkg/rabbitmq"
 
 func main() {
 	ch, err := rabbitmq.OpenChannel()

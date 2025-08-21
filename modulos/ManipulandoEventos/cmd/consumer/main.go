@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/ManipulandoEventos/pkg/rabbitmq"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/ManipulandoEventos/pkg/rabbitmq"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
