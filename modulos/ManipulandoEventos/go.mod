@@ -1,4 +1,4 @@
-module github.com/neberson/pos-go-expert-fullcycle/tree/main/modulos/ManipulandoEventos
+module github.com/neberson/pos-go-expert-fullcycle/modulos/ManipulandoEventos
 
 go 1.24.4
 
