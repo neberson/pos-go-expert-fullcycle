@@ -8,4 +8,5 @@ import "github.com/neberson/pos-go-expert-fullcycle/modulos/GraphQL/internal/dat
 
 type Resolver struct {
 	CategoryDB *database.Category
+	CourseDB   *database.Course
 }
