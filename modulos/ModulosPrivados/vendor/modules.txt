@@ -1,0 +1,3 @@
+# github.com/neberson/fcutils v0.0.0-20250821155933-9bfaefd6e31f
+## explicit; go 1.24.4
+github.com/neberson/fcutils/pkg/events
