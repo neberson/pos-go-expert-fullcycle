@@ -9,6 +9,7 @@ import (
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/gRPC/internal/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	_ "modernc.org/sqlite"
 )
 
 func main() {
