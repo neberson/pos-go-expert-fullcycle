@@ -24,7 +24,7 @@ to quickly create a Cobra application.`,
 
 func init() {
 	rootCmd.AddCommand(categoryCmd)
-
+	categoryCmd.PersistentFlags().String("name", "", "Category of the note")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
