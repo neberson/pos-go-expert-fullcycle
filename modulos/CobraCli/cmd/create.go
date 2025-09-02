@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	_ "modernc.org/sqlite"
 )
 
 // createCmd represents the create command
@@ -18,20 +19,24 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		db := GetDb()
+		defer db.Close()
+		category := GetCategoryDb(db)
+
+		name, _ := cmd.Flags().GetString("name")
+		description, _ := cmd.Flags().GetString("description")
+
+		_, err := category.Create(name, description)
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 
 func init() {
 	categoryCmd.AddCommand(createCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	createCmd.Flags().StringP("name", "n", "", "Category name")
+	createCmd.Flags().StringP("description", "d", "", "Category description")
+	createCmd.MarkFlagsRequiredTogether("name", "description")
 }

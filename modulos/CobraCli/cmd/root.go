@@ -1,16 +1,28 @@
 /*
 Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
+	"database/sql"
 	"os"
 
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/CobraCli/internal/database"
 	"github.com/spf13/cobra"
+	_ "modernc.org/sqlite"
 )
 
+func GetDb() *sql.DB {
+	db, err := sql.Open("sqlite", "./data.db")
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
 
+func GetCategoryDb(db *sql.DB) database.Category {
+	return *database.NewCategory(db)
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -47,5 +59,3 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
-
-
