@@ -19,3 +19,7 @@ WHERE id = ?;
 -- name: CreateCourse :exec
 INSERT INTO Courses (id, name, description, category_id, price)
 VALUES (?, ?, ?, ?, ?);
+
+-- name: ListCourses :many
+SELECT c.*, ca.name AS category_name
+FROM Courses c JOIN Categories ca ON c.category_id = ca.id;

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/SQLC/internal/db"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -94,19 +93,28 @@ func main() {
 	}
 	defer dbConn.Close()
 
-	//queries := db.New(dbConn)
+	queries := db.New(dbConn)
 
-	courseArgs := CourseParams{
-		ID:          "course-1",
-		Name:        "Course 1",
-		Description: sql.NullString{String: "Description Course 1", Valid: true},
+	courses, err := queries.ListCourses(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, course := range courses {
+		fmt.Printf("Category: %s, CourseID: %s, Course Name: %s, Course Description: %s, Course Price: %f", course.CategoryName, course.ID, course.Name, course.Description.String, course.Price)
+	}
+
+	/*courseArgs := CourseParams{
+		ID:          uuid.New().String(),
+		Name:        "Course 2",
+		Description: sql.NullString{String: "Description Course 2", Valid: true},
 		Price:       199.90,
 	}
 
 	categoryArgs := CategoryParams{
 		ID:          uuid.New().String(),
-		Name:        "Category 1",
-		Description: sql.NullString{String: "Description Category 1", Valid: true},
+		Name:        "Category 2",
+		Description: sql.NullString{String: "Description Category 2", Valid: true},
 	}
 
 	CourseDB := NewCourseDB(dbConn)
@@ -114,6 +122,6 @@ func main() {
 	err = CourseDB.CreateCourseAndCategory(ctx, courseArgs, categoryArgs)
 	if err != nil {
 		panic(err)
-	}
+	}*/
 
 }
