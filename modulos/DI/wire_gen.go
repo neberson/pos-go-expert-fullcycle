@@ -8,6 +8,7 @@ package main
 
 import (
 	"database/sql"
+	"github.com/google/wire"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/DI/product"
 )
 
@@ -22,3 +23,9 @@ func NewUseCase(db *sql.DB) *product.ProductUseCase {
 	productUseCase := product.NewProductUseCase(productRepository)
 	return productUseCase
 }
+
+// wire.go:
+
+var (
+	setRepositoryDependencies = wire.NewSet(product.NewProductRepository, wire.Bind(new(product.ProductRepositoryInterface), new(*product.ProductRepository)))
+)
