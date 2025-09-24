@@ -2,7 +2,10 @@ module github.com/neberson/pos-go-expert-fullcycle/modulos/DI
 
 go 1.24.4
 
-require modernc.org/sqlite v1.39.0
+require (
+	github.com/google/wire v0.7.0
+	modernc.org/sqlite v1.39.0
+)
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
