@@ -25,13 +25,12 @@ func NewAddCourseUseCaseUow(uow uow.UowInterface) *AddCourseUseCaseUow {
 }
 
 func (a *AddCourseUseCaseUow) Execute(ctx context.Context, input InputUseCase) error {
-	return a.Uow.Do(ctx, func(uow uow.UowInterface) error {
-		// tudo que colocarmos aqui, será feito um begin e um commit ou rollback
-		// se der erro em qualquer parte, tudo será desfeito (rollback)
+	return a.Uow.Do(ctx, func(uow *uow.Uow) error {
 		category := entity.Category{
 			Name: input.CategoryName,
 		}
-		err := a.getCategoryRepository(ctx).Insert(ctx, category)
+		repoCategory := a.getCategoryRepository(ctx)
+		err := repoCategory.Insert(ctx, category)
 		if err != nil {
 			return err
 		}
@@ -46,10 +45,8 @@ func (a *AddCourseUseCaseUow) Execute(ctx context.Context, input InputUseCase) e
 		if err != nil {
 			return err
 		}
-
 		return nil
 	})
-
 }
 
 func (a *AddCourseUseCaseUow) getCategoryRepository(ctx context.Context) repository.CategoryRepositoryInterface {
