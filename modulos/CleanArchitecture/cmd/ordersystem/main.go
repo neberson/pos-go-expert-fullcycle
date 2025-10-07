@@ -18,6 +18,9 @@ import (
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	// mysql
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
