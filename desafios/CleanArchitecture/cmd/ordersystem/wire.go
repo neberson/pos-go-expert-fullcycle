@@ -32,11 +32,17 @@ var setOrderCreatedEvent = wire.NewSet(
 	wire.Bind(new(events.EventInterface), new(*event.OrderCreated)),
 )
 
-func NewCreateOrderUseCase(db *sql.DB, eventDispatcher events.EventDispatcherInterface) *usecase.CreateOrderUseCase
+func NewCreateOrderUseCase(db *sql.DB, eventDispatcher events.EventDispatcherInterface) *usecase.CreateOrderUseCase {
+	wire.Build(SetOrderRepository, setOrderCreatedEvent, usecase.NewCreateOrderUseCase)
+	return &usecase.CreateOrderUseCase{}
+}
 
-func NewWebOrderHandler(db *sql.DB, eventDispatcher events.EventDispatcherInterface) *web.WebOrderHandler
+func NewWebOrderHandler(db *sql.DB, eventDispatcher events.EventDispatcherInterface) *web.WebOrderHandler {
+	wire.Build(SetOrderRepository, setOrderCreatedEvent, web.NewWebOrderHandler)
+	return &web.WebOrderHandler{}
+}
 
 func NewListOrdersUseCase(db *sql.DB) *usecase.ListOrdersUseCase {
-	orderRepository := database.NewOrderRepository(db)
-	return usecase.NewListOrdersUseCase(orderRepository)
+	wire.Build(SetOrderRepository, usecase.NewListOrdersUseCase)
+	return &usecase.ListOrdersUseCase{}
 }
