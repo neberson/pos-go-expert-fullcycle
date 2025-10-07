@@ -5,9 +5,9 @@ package main
 
 import (
 	"github.com/google/wire"
-	"ithub.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/internal/event"
-	"ithub.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/internal/infra/database"
-	"ithub.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/pkg/events"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/internal/event"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/internal/infra/database"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/pkg/events"
 )
 
 var SetOrderRepository = wire.NewSet(
