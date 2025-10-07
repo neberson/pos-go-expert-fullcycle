@@ -8,4 +8,5 @@ import "github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/in
 
 type Resolver struct {
 	CreateOrderUseCase usecase.CreateOrderUseCase
+	ListOrdersUseCase  usecase.ListOrdersUseCase
 }
