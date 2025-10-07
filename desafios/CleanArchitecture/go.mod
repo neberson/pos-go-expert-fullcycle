@@ -4,7 +4,7 @@ go 1.24.4
 
 require (
 	github.com/99designs/gqlgen v0.17.81
-	github.com/go-chi/chi v1.5.5
+	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/google/wire v0.7.0
 	github.com/mattn/go-sqlite3 v1.14.32
