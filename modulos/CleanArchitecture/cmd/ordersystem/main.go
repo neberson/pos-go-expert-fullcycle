@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	config "github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/configs"
+	"github.com/streadway/amqp"
 )
 
 func main() {
@@ -18,4 +19,19 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+
+	rabbitMQChannel := getRabbitMQChannel()
+	defer rabbitMQChannel.Close()
+}
+
+func getRabbitMQChannel() *amqp.Channel {
+	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	if err != nil {
+		panic(err)
+	}
+	ch, err := conn.Channel()
+	if err != nil {
+		panic(err)
+	}
+	return ch
 }
