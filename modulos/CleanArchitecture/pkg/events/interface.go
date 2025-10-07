@@ -1,4 +1,4 @@
-package event
+package events
 
 import (
 	"sync"
@@ -13,7 +13,7 @@ type EventInterface interface {
 }
 
 type EventHandlerInterface interface {
-	Handle(event EventInterface, wg *sync.WaitGroup) error
+	Handle(event EventInterface, wg *sync.WaitGroup)
 }
 
 type EventDispatcherInterface interface {

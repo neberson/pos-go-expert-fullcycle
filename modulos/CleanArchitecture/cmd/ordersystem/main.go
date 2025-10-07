@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	config "github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/configs"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/internal/event/handler"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/pkg/events"
 	"github.com/streadway/amqp"
 )
 
@@ -22,6 +24,12 @@ func main() {
 
 	rabbitMQChannel := getRabbitMQChannel()
 	defer rabbitMQChannel.Close()
+
+	eventDispatcher := events.NewEventDispatcher()
+	eventDispatcher.Register("OrderCreated", &handler.OrderCreatedHandler{
+		RabbitMQChannel: rabbitMQChannel,
+	})
+
 }
 
 func getRabbitMQChannel() *amqp.Channel {

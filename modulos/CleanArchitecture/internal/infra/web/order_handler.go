@@ -5,20 +5,20 @@ import (
 	"net/http"
 
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/internal/entity"
-	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/internal/event"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/internal/usecase"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/pkg/events"
 )
 
 type WebOrderHandler struct {
-	EventDispatcher   event.EventDispatcherInterface
+	EventDispatcher   events.EventDispatcherInterface
 	OrderRepository   entity.OrderRepositoryInterface
-	OrderCreatedEvent event.EventInterface
+	OrderCreatedEvent events.EventInterface
 }
 
 func NewWebOrderHandler(
-	eventDispatcher event.EventDispatcherInterface,
+	eventDispatcher events.EventDispatcherInterface,
 	orderRepository entity.OrderRepositoryInterface,
-	orderCreatedEvent event.EventInterface,
+	orderCreatedEvent events.EventInterface,
 ) *WebOrderHandler {
 	return &WebOrderHandler{
 		EventDispatcher:   eventDispatcher,

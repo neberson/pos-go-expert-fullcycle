@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/internal/entity"
-	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/internal/event"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/CleanArchitecture/pkg/events"
 )
 
 type OrderInputDTO struct {
@@ -20,14 +20,14 @@ type OrderOutputDTO struct {
 
 type CreateOrderUseCase struct {
 	OrderRepository entity.OrderRepositoryInterface
-	OrderCreated    event.EventInterface
-	EventDispatcher event.EventDispatcherInterface
+	OrderCreated    events.EventInterface
+	EventDispatcher events.EventDispatcherInterface
 }
 
 func NewCreateOrderUseCase(
 	orderRepository entity.OrderRepositoryInterface,
-	orderCreated event.EventInterface,
-	eventDispatcher event.EventDispatcherInterface,
+	orderCreated events.EventInterface,
+	eventDispatcher events.EventDispatcherInterface,
 ) *CreateOrderUseCase {
 	return &CreateOrderUseCase{
 		OrderRepository: orderRepository,
