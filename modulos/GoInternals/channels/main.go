@@ -9,6 +9,8 @@ func main() {
 	simpleChannel()
 	bufferedChannel()
 	bufferedChannelBloq()
+	notBufferedChannelTimeout()
+	notBufferedChannelWorkers()
 }
 
 func simpleChannel() {
@@ -52,4 +54,38 @@ func bufferedChannelBloq() {
 	}()
 
 	time.Sleep(2 * time.Second)
+}
+
+func notBufferedChannelTimeout() {
+	ch := make(chan int) // canal sem buffer
+	go func() {
+		time.Sleep(2 * time.Second)
+		ch <- 42 // bloqueia aqui até que alguém receba o valor
+	}()
+
+	select {
+	case val := <-ch:
+		fmt.Println("Received", val)
+	case <-time.After(1 * time.Second):
+		fmt.Println("Timeout: no value received")
+	}
+}
+
+func notBufferedChannelWorkers() {
+	done := make(chan bool)
+	numWorkers := 3
+
+	for i := 0; i < numWorkers; i++ {
+		go func(id int) {
+			time.Sleep(time.Duration(id) * time.Second)
+			fmt.Printf("Worker %d done\n", id)
+			done <- true
+		}(i)
+	}
+
+	for i := 0; i < numWorkers; i++ {
+		<-done // espera cada worker terminar
+	}
+
+	fmt.Println("All workers done")
 }
