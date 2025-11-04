@@ -9,12 +9,20 @@ type User struct {
 	Name string
 }
 
-func main() {
-	println(add(1, 2))
+// // A variável user é um ponteiro para um objeto User.
+// // O ponteiro user é retornado da função NewUser
+// // O objeto User precisa existindo após a função terminar,
+// // pois o ponteiro é usado fora da função.
+// // Portanto, o objeto User é alocado no heap.
 
-	var p *int
-	{
-		x := 42
-		p = &x // x escapa para o heap, pois seu endereço é retornado
-	}
+func NewUser(name string) *User {
+	user := &User{Name: name} // user é alocado no heap
+	return user               // retornando ponteiro para o heap
+}
+
+func main() {
+	//println(add(1, 2))
+
+	user := NewUser("Alice")
+	println(user.Name)
 }
