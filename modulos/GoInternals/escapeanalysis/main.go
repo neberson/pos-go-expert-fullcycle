@@ -34,12 +34,29 @@ package main
 // // // Se uma váriavel local é usada dentro de uma goroutine, ela deve ser alocada no heap.
 // // // pois a goroutine pode continuar executando após a função retornar.
 
-func startGoroutine() {
-	go func() {
-		i := 42 // i deve ser alocado no heap
-		println(i)
-	}()
+//func startGoroutine() {
+//	go func() {
+//		i := 42 // i deve ser alocado no heap
+//		println(i)
+//	}()
+//}
+
+// // função recursiva que poderia gerar um stack overflow
+func recursive(n int) int {
+	if n == 0 {
+		return 1
+	}
+	return n * recursive(n-1)
 }
+
+// go build -gcflags="-m" main.go
+// go install github.com/go-delve/delve/cmd/dlv@latest
+// go build -gcflags="all=-N -l" -o recursive
+// dlv debug
+// break main.recursive
+// continue
+// step...step...step...
+// stack
 
 func main() {
 	//println(add(1, 2))
@@ -49,5 +66,7 @@ func main() {
 	// m := storeInMap()
 	// println(*m["key"])
 
-	startGoroutine() // espera a goroutine terminar
+	// startGoroutine()
+
+	println(recursive(10))
 }
