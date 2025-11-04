@@ -23,12 +23,22 @@ package main
 // Armzenamento em Estrutura de Dados
 // Se uma variável é armazenada em uma estrutura de dados que que sobrevive ao escopo da função,
 // ela deve ser alocada no heap.
-func storeInMap() map[string]*int {
-	m := make(map[string]*int) // m é mapa que pode sobreviver ao escopo da função
-	i := 42                    // i é váriavel local
-	m["key"] = &i              // o ponteiro para i é armazenado no mapa
-	return m                   // retornando o mapa
-	// IMPORTANTE: se m não fosse retornado, ele não seria alocado para o heap
+//func storeInMap() map[string]*int {
+//	m := make(map[string]*int) // m é mapa que pode sobreviver ao escopo da função
+//	i := 42                    // i é váriavel local
+//	m["key"] = &i              // o ponteiro para i é armazenado no mapa
+//	return m                   // retornando o mapa
+//	// IMPORTANTE: se m não fosse retornado, ele não seria alocado para o heap
+//}
+
+// // // Se uma váriavel local é usada dentro de uma goroutine, ela deve ser alocada no heap.
+// // // pois a goroutine pode continuar executando após a função retornar.
+
+func startGoroutine() {
+	go func() {
+		i := 42 // i deve ser alocado no heap
+		println(i)
+	}()
 }
 
 func main() {
@@ -36,6 +46,8 @@ func main() {
 
 	//	user := NewUser("Alice")
 	//	println(user.Name)
-	m := storeInMap()
-	println(*m["key"])
+	// m := storeInMap()
+	// println(*m["key"])
+
+	startGoroutine() // espera a goroutine terminar
 }
