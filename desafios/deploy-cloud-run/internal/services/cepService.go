@@ -11,18 +11,12 @@ import (
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run/internal/entity"
 )
 
-var (
-	ErrNotFound       = fmt.Errorf("cep não encontrado")
-	ErrToManyRequests = fmt.Errorf("muitas requisições para o serviço de cep")
-	ErrGeneric        = fmt.Errorf("erro ao consultar serviço de cep")
-)
-
 const urlViaCep = "https://viacep.com.br/ws/%s/json/"
 
 type CepService struct{}
 
-func NewCepService() CepService {
-	return CepService{}
+func NewCepService() *CepService {
+	return &CepService{}
 }
 
 func (c CepService) GetCepViaCep(ctx context.Context, cep string) (*entity.PostalAddress, error) {
