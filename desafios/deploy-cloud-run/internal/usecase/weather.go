@@ -20,17 +20,22 @@ type WeatherOutputDto struct {
 }
 
 type GetWeatherUseCase struct {
-	cepService services.CepServiceInterface
+	cepService     services.CepServiceInterface
+	weatherService services.WeatherServiceInterface
 }
 
-func NewGetWeatherUseCase(cepServiceInterface services.CepServiceInterface) *GetWeatherUseCase {
+func NewGetWeatherUseCase(
+	cepServiceInterface services.CepServiceInterface,
+	weatherServiceInterface services.WeatherServiceInterface,
+) *GetWeatherUseCase {
 	return &GetWeatherUseCase{
-		cepService: cepServiceInterface,
+		cepService:     cepServiceInterface,
+		weatherService: weatherServiceInterface,
 	}
 }
 
 func (w *GetWeatherUseCase) Execute(input CepInputDto) (WeatherOutputDto, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 
 	cep := entity.NewCep(input.Cep)
@@ -43,6 +48,12 @@ func (w *GetWeatherUseCase) Execute(input CepInputDto) (WeatherOutputDto, error)
 		return WeatherOutputDto{}, err
 	}
 
+	weather, err := w.weatherService.GetWeather(ctx, postalAddress.Localidade)
+	if err != nil {
+		return WeatherOutputDto{}, err
+	}
+
+	fmt.Println(weather)
 	fmt.Println(postalAddress)
 
 	return WeatherOutputDto{}, nil
