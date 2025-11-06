@@ -102,6 +102,9 @@ Notas:
   - go mod tidy
   - go run ./cmd/server/main.go
 
+- Executar testes:
+  - go test ./...
+
 ## Docker
 
 - Dockerfile:
