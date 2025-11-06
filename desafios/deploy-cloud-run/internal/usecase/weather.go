@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run/internal/entity"
@@ -58,10 +57,6 @@ func (w *GetWeatherUseCase) Execute(input CepInputDto) (WeatherOutputDto, error)
 		TemperatureF: weather.ToFahrenheit(),
 		TemperatureK: weather.ToKelvin(),
 	}
-
-	fmt.Println(weather)
-	fmt.Println(postalAddress)
-	fmt.Println(weatherOutputDto)
 
 	return weatherOutputDto, nil
 }
