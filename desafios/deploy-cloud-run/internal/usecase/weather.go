@@ -53,8 +53,15 @@ func (w *GetWeatherUseCase) Execute(input CepInputDto) (WeatherOutputDto, error)
 		return WeatherOutputDto{}, err
 	}
 
+	weatherOutputDto := WeatherOutputDto{
+		TemperatureC: weather.Current.TempC,
+		TemperatureF: weather.ToFahrenheit(),
+		TemperatureK: weather.ToKelvin(),
+	}
+
 	fmt.Println(weather)
 	fmt.Println(postalAddress)
+	fmt.Println(weatherOutputDto)
 
-	return WeatherOutputDto{}, nil
+	return weatherOutputDto, nil
 }
