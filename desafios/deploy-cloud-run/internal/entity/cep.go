@@ -1,12 +1,12 @@
 package entity
 
 import (
-	"errors"
+	"fmt"
 	"regexp"
 )
 
-const (
-	ErrInvalidCep = "invalid zipcode"
+var (
+	ErrInvalidCep = fmt.Errorf("invalid zipcode")
 )
 
 type Cep struct {
@@ -19,7 +19,7 @@ func NewCep(cep string) *Cep {
 
 func (c *Cep) Validate() error {
 	if !regexp.MustCompile(`^\d{8}$`).MatchString(c.Cep) {
-		return errors.New(ErrInvalidCep)
+		return ErrInvalidCep
 	}
 	return nil
 }

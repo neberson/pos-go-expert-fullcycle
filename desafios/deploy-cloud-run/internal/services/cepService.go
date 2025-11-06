@@ -3,12 +3,18 @@ package services
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run/internal/entity"
+)
+
+var (
+	ErrNotFound       = fmt.Errorf("cep não encontrado")
+	ErrToManyRequests = fmt.Errorf("muitas requisições para o serviço de cep")
+	ErrGeneric        = fmt.Errorf("erro ao consultar serviço de cep")
 )
 
 const urlViaCep = "https://viacep.com.br/ws/%s/json/"
@@ -37,16 +43,20 @@ func (c CepService) GetCepViaCep(ctx context.Context, cep string) (*entity.Posta
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusTooManyRequests {
-		return postalAddress, errors.New("too many requests to viacep")
+		return postalAddress, ErrToManyRequests
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return postalAddress, errors.New("error fetching cep from viacep")
+		return postalAddress, ErrGeneric
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return postalAddress, err
+	}
+
+	if strings.Contains(string(body), `erro`) {
+		return postalAddress, ErrNotFound
 	}
 
 	err = json.Unmarshal(body, postalAddress)
