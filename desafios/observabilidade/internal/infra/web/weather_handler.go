@@ -64,12 +64,25 @@ func (h *WebWeatherHandler) GetWeatherHandler(w http.ResponseWriter, r *http.Req
 func (h *WebWeatherHandler) PostWeatherHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var cepInput entity.Cep
-	if err := json.NewDecoder(r.Body).Decode(&cepInput); err != nil {
+	var raw map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&raw); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	cepValue, ok := raw["cep"]
+	if !ok {
+		http.Error(w, entity.ErrInvalidCep.Error(), http.StatusBadRequest)
+		return
+	}
+
+	cepStr, ok := cepValue.(string)
+	if !ok {
+		http.Error(w, entity.ErrInvalidCep.Error(), http.StatusBadRequest)
+		return
+	}
+
+	cepInput := entity.Cep{Cep: cepStr}
 	if err := cepInput.Validate(); errors.Is(err, entity.ErrInvalidCep) {
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
