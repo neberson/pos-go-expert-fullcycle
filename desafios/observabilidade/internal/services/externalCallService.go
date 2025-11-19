@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 
@@ -36,7 +35,6 @@ func (e *ExternalCallService) GetExternalCall(ctx context.Context) (*dto.Weather
 
 	urlCall := e.url + "/" + e.cep
 
-	log.Println(urlCall)
 	req, err := http.NewRequestWithContext(ctx, "GET", urlCall, nil)
 	if err != nil {
 		return &weather, err
@@ -70,8 +68,6 @@ func (e *ExternalCallService) GetExternalCall(ctx context.Context) (*dto.Weather
 	if err != nil {
 		return &weather, err
 	}
-
-	log.Println(string(body))
 
 	return &weather, nil
 }
