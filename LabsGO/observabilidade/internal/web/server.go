@@ -3,9 +3,9 @@ package web
 import (
 	"embed"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
+	"text/template"
 	"time"
 
 	"github.com/go-chi/chi/middleware"
@@ -19,19 +19,19 @@ import (
 //go:embed template/*
 var templateContent embed.FS
 
-type WebServer struct {
+type Webserver struct {
 	TemplateData *TemplateData
 }
 
 // NewServer creates a new server instance
-func NewServer(templateData *TemplateData) *WebServer {
-	return &WebServer{
+func NewServer(templateData *TemplateData) *Webserver {
+	return &Webserver{
 		TemplateData: templateData,
 	}
 }
 
 // createServer creates a new server instance with go chi router
-func (we *WebServer) CreateServer() *chi.Mux {
+func (we *Webserver) CreateServer() *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middleware.RequestID)
@@ -39,7 +39,6 @@ func (we *WebServer) CreateServer() *chi.Mux {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Logger)
 	router.Use(middleware.Timeout(60 * time.Second))
-
 	// promhttp
 	router.Handle("/metrics", promhttp.Handler())
 	router.Get("/", we.HandleRequest)
@@ -57,7 +56,7 @@ type TemplateData struct {
 	OTELTracer         trace.Tracer
 }
 
-func (h *WebServer) HandleRequest(w http.ResponseWriter, r *http.Request) {
+func (h *Webserver) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	carrier := propagation.HeaderCarrier(r.Header)
 	ctx := r.Context()
 	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
@@ -79,15 +78,13 @@ func (h *WebServer) HandleRequest(w http.ResponseWriter, r *http.Request) {
 		} else if h.TemplateData.ExternalCallMethod == "POST" {
 			req, err = http.NewRequestWithContext(ctx, "POST", h.TemplateData.ExternalCallURL, nil)
 		} else {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Invalid ExternalCallMethod", http.StatusInternalServerError)
 			return
 		}
-
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
@@ -105,7 +102,6 @@ func (h *WebServer) HandleRequest(w http.ResponseWriter, r *http.Request) {
 
 	tpl := template.Must(template.New("index.html").ParseFS(templateContent, "template/index.html"))
 	err := tpl.Execute(w, h.TemplateData)
-
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error executing template: %v", err), http.StatusInternalServerError)
 		return
