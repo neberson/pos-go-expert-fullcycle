@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run/internal/entity"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/entity"
 )
 
 const urlViaCep = "https://viacep.com.br/ws/%s/json/"

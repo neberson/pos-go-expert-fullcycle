@@ -1,0 +1,14 @@
+### Test suceccessful
+GET http://localhost:8181/weather/75915000 HTTP/1.1
+
+### Test invalid cep
+GET http://localhost:8181/weather/75915-000 HTTP/1.1
+
+### Test invalid cep
+GET http://localhost:8181/weather/75915 HTTP/1.1
+
+### Test invalid cep
+GET http://localhost:8181/weather/7591500000 HTTP/1.1
+
+### Test cep not found
+GET http://localhost:8181/weather/00000000 HTTP/1.1

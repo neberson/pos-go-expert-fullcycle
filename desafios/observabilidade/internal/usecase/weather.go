@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run/internal/entity"
-	"github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run/internal/services"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/entity"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/services"
 )
 
 type CepInputDto struct {

@@ -1,4 +1,4 @@
-module github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run
+module github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade
 
 go 1.24.4
 

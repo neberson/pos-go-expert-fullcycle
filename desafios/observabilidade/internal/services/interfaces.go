@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run/internal/entity"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/entity"
 )
 
 type CepServiceInterface interface {

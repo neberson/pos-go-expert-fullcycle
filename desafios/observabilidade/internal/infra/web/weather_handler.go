@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run/internal/entity"
-	"github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run/internal/services"
-	"github.com/neberson/pos-go-expert-fullcycle/modulos/deploy-cloud-run/internal/usecase"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/entity"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/services"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/usecase"
 )
 
 type WebWeatherHandler struct {

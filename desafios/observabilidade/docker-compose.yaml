@@ -1,13 +1,23 @@
 version: '3.9'
 
 services:
-  app:
+  service-a:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: weather
+      dockerfile: ./cmd/server-a/Dockerfile
+    container_name: weather-a
     environment:
       - WEATHER_API_KEY=${WEATHER_API_KEY}
     ports:
       - "8080:8080"
+    restart: unless-stopped
+  service-b:
+    build:
+      context: .
+      dockerfile: ./cmd/server-b/Dockerfile
+    container_name: weather-b
+    environment:
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+    ports:
+      - "8181:8181"
     restart: unless-stopped
