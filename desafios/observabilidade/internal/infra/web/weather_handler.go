@@ -12,17 +12,20 @@ import (
 )
 
 type WebWeatherHandler struct {
-	cepService     services.CepServiceInterface
-	weatherService services.WeatherServiceInterface
+	cepService      services.CepServiceInterface
+	weatherService  services.WeatherServiceInterface
+	externalCallUrl string
 }
 
 func NewWebWeatherHandler(
 	cepService services.CepServiceInterface,
 	weatherService services.WeatherServiceInterface,
+	externalCallUrl string,
 ) *WebWeatherHandler {
 	return &WebWeatherHandler{
-		cepService:     cepService,
-		weatherService: weatherService,
+		cepService:      cepService,
+		weatherService:  weatherService,
+		externalCallUrl: externalCallUrl,
 	}
 }
 
@@ -38,6 +41,41 @@ func (h *WebWeatherHandler) GetWeatherHandler(w http.ResponseWriter, r *http.Req
 
 	WeatherUseCase := usecase.NewGetWeatherUseCase(h.cepService, h.weatherService)
 	inputCepDto := usecase.CepInputDto{Cep: cep}
+	weather, err := WeatherUseCase.Execute(inputCepDto)
+	if err != nil {
+		if errors.Is(err, services.ErrNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(weather)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *WebWeatherHandler) PostWeatherHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var cepInput entity.Cep
+	if err := json.NewDecoder(r.Body).Decode(&cepInput); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := cepInput.Validate(); errors.Is(err, entity.ErrInvalidCep) {
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		return
+	}
+
+	WeatherUseCase := usecase.NewGetWeatherUseCase(h.cepService, h.weatherService)
+	inputCepDto := usecase.CepInputDto{Cep: cepInput.Cep}
 	weather, err := WeatherUseCase.Execute(inputCepDto)
 	if err != nil {
 		if errors.Is(err, services.ErrNotFound) {

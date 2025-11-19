@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/infra/web"
@@ -15,10 +16,10 @@ func main() {
 	apiKey := os.Getenv("WEATHER_API_KEY")
 	cepService := services.NewCepService()
 	weatherService := services.NewWeatherService(apiKey)
-	webWeatherHandler := web.NewWebWeatherHandler(cepService, weatherService)
+	webWeatherHandler := web.NewWebWeatherHandler(cepService, weatherService, "")
 
 	webserver := webserver.NewWebServer(portServer)
-	webserver.AddHandler("/weather/{id}", webWeatherHandler.GetWeatherHandler)
+	webserver.AddHandler(http.MethodGet, "/weather/{id}", webWeatherHandler.GetWeatherHandler)
 	fmt.Println("Starting server on port", portServer)
 	webserver.Start()
 }

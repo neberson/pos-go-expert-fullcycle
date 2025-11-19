@@ -2,23 +2,29 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"net/http"
 
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/infra/web"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/infra/web/webserver"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/services"
+	"github.com/spf13/viper"
 )
 
 const portServer = ":8080"
 
+func init() {
+	viper.AutomaticEnv()
+}
+
 func main() {
-	apiKey := os.Getenv("WEATHER_API_KEY")
+	apiKey := viper.GetString("WEATHER_API_KEY")
+	externalCallUrl := viper.GetString("EXTERNAL_CALL_URL")
 	cepService := services.NewCepService()
 	weatherService := services.NewWeatherService(apiKey)
-	webWeatherHandler := web.NewWebWeatherHandler(cepService, weatherService)
+	webWeatherHandler := web.NewWebWeatherHandler(cepService, weatherService, externalCallUrl)
 
 	webserver := webserver.NewWebServer(portServer)
-	webserver.AddHandler("/weather/{id}", webWeatherHandler.GetWeatherHandler)
+	webserver.AddHandler(http.MethodPost, "/weather", webWeatherHandler.PostWeatherHandler)
 	fmt.Println("Starting server on port", portServer)
 	webserver.Start()
 }

@@ -56,7 +56,7 @@ func (w *WeatherService) GetWeather(ctx context.Context, city string) (*entity.W
 		return weather, err
 	}
 
-	if (strings.Contains(string(body), `code`)) && (strings.Contains(string(body), `1006`)) {
+	if strings.Contains(string(body), `error`) && strings.Contains(string(body), `"code":1006`) {
 		return weather, ErrNotFound
 	}
 
