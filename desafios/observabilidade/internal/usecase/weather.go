@@ -4,19 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/dto"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/entity"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/services"
 )
-
-type CepInputDto struct {
-	Cep string `json:"cep"`
-}
-
-type WeatherOutputDto struct {
-	TemperatureC float64 `json:"temp_C"`
-	TemperatureF float64 `json:"temp_F"`
-	TemperatureK float64 `json:"temp_K"`
-}
 
 type GetWeatherUseCase struct {
 	cepService     services.CepServiceInterface
@@ -33,26 +24,26 @@ func NewGetWeatherUseCase(
 	}
 }
 
-func (w *GetWeatherUseCase) Execute(input CepInputDto) (WeatherOutputDto, error) {
+func (w *GetWeatherUseCase) Execute(input dto.CepInputDto) (dto.WeatherOutputDto, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 
 	cep := entity.NewCep(input.Cep)
 	if err := cep.Validate(); err != nil {
-		return WeatherOutputDto{}, err
+		return dto.WeatherOutputDto{}, err
 	}
 
 	postalAddress, err := w.cepService.GetCepViaCep(ctx, cep.Cep)
 	if err != nil {
-		return WeatherOutputDto{}, err
+		return dto.WeatherOutputDto{}, err
 	}
 
 	weather, err := w.weatherService.GetWeather(ctx, postalAddress.Localidade)
 	if err != nil {
-		return WeatherOutputDto{}, err
+		return dto.WeatherOutputDto{}, err
 	}
 
-	weatherOutputDto := WeatherOutputDto{
+	weatherOutputDto := dto.WeatherOutputDto{
 		TemperatureC: weather.Current.TempC,
 		TemperatureF: weather.ToFahrenheit(),
 		TemperatureK: weather.ToKelvin(),

@@ -19,9 +19,11 @@ func init() {
 func main() {
 	apiKey := viper.GetString("WEATHER_API_KEY")
 	externalCallUrl := viper.GetString("EXTERNAL_CALL_URL")
+
 	cepService := services.NewCepService()
 	weatherService := services.NewWeatherService(apiKey)
-	webWeatherHandler := web.NewWebWeatherHandler(cepService, weatherService, externalCallUrl)
+	externalCall := services.NewExternalCallService(externalCallUrl)
+	webWeatherHandler := web.NewWebWeatherHandler(cepService, weatherService, externalCall)
 
 	webserver := webserver.NewWebServer(portServer)
 	webserver.AddHandler(http.MethodPost, "/weather", webWeatherHandler.PostWeatherHandler)

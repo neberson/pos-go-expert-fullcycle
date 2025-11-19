@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/dto"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/entity"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/services"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/usecase"
@@ -14,13 +15,13 @@ import (
 type WebWeatherHandler struct {
 	cepService      services.CepServiceInterface
 	weatherService  services.WeatherServiceInterface
-	externalCallUrl string
+	externalCallUrl services.ExternalCallServiceInterface
 }
 
 func NewWebWeatherHandler(
 	cepService services.CepServiceInterface,
 	weatherService services.WeatherServiceInterface,
-	externalCallUrl string,
+	externalCallUrl services.ExternalCallServiceInterface,
 ) *WebWeatherHandler {
 	return &WebWeatherHandler{
 		cepService:      cepService,
@@ -40,7 +41,7 @@ func (h *WebWeatherHandler) GetWeatherHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	WeatherUseCase := usecase.NewGetWeatherUseCase(h.cepService, h.weatherService)
-	inputCepDto := usecase.CepInputDto{Cep: cep}
+	inputCepDto := dto.CepInputDto{Cep: cep}
 	weather, err := WeatherUseCase.Execute(inputCepDto)
 	if err != nil {
 		if errors.Is(err, services.ErrNotFound) {
@@ -74,9 +75,8 @@ func (h *WebWeatherHandler) PostWeatherHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	WeatherUseCase := usecase.NewGetWeatherUseCase(h.cepService, h.weatherService)
-	inputCepDto := usecase.CepInputDto{Cep: cepInput.Cep}
-	weather, err := WeatherUseCase.Execute(inputCepDto)
+	h.externalCallUrl.SetCep(cepInput.Cep)
+	weather, err := h.externalCallUrl.GetExternalCall(r.Context())
 	if err != nil {
 		if errors.Is(err, services.ErrNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)

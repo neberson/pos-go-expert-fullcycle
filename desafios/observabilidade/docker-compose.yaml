@@ -8,6 +8,7 @@ services:
     container_name: weather-a
     environment:
       - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - EXTERNAL_CALL_URL=http://service-b:8181/weather
     ports:
       - "8080:8080"
     restart: unless-stopped
