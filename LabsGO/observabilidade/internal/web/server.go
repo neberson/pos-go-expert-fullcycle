@@ -62,7 +62,11 @@ func (h *WebServer) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
 
-	ctx, span := h.TemplateData.OTELTracer.Start(ctx, h.TemplateData.RequestNameOTEL)
+	ctx, spanInicial := h.TemplateData.OTELTracer.Start(ctx, "SPAN_INICIAL"+h.TemplateData.RequestNameOTEL)
+	time.Sleep(time.Second)
+	spanInicial.End()
+
+	ctx, span := h.TemplateData.OTELTracer.Start(ctx, "Chama externa"+h.TemplateData.RequestNameOTEL)
 	defer span.End()
 
 	time.Sleep(time.Millisecond * h.TemplateData.ResponseTime)

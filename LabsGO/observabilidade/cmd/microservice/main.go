@@ -25,20 +25,22 @@ import (
 
 func initProvider(serviceName, collectorURL string) (func(context.Context) error, error) {
 	ctx := context.Background()
+
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
-			semconv.ServiceNameKey.String(serviceName),
+			semconv.ServiceName(serviceName),
 		),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create resource: %w", err)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	conn, err := grpc.DialContext(ctx, collectorURL,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock())
+		grpc.WithBlock(),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create gRPC connection to collector: %w", err)
 	}
@@ -54,7 +56,6 @@ func initProvider(serviceName, collectorURL string) (func(context.Context) error
 		sdktrace.WithResource(res),
 		sdktrace.WithSpanProcessor(bsp),
 	)
-
 	otel.SetTracerProvider(tracerProvider)
 
 	otel.SetTextMapPropagator(propagation.TraceContext{})
