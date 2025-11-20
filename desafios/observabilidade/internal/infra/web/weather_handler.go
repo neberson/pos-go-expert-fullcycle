@@ -10,6 +10,9 @@ import (
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/entity"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/services"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/usecase"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type WebWeatherHandler struct {
@@ -32,6 +35,9 @@ func NewWebWeatherHandler(
 
 func (h *WebWeatherHandler) GetWeatherHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	ctx := r.Context()
+	otelTracer := otel.Tracer("service-b-otel-tracer")
+
 	cep := chi.URLParam(r, "id")
 	cepInput := entity.NewCep(cep)
 
@@ -40,7 +46,10 @@ func (h *WebWeatherHandler) GetWeatherHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	WeatherUseCase := usecase.NewGetWeatherUseCase(h.cepService, h.weatherService)
+	span := trace.SpanFromContext(ctx)
+	span.SetAttributes(attribute.String("cep", cep))
+
+	WeatherUseCase := usecase.NewGetWeatherUseCase(h.cepService, h.weatherService, otelTracer)
 	inputCepDto := dto.CepInputDto{Cep: cep}
 	weather, err := WeatherUseCase.Execute(inputCepDto)
 	if err != nil {

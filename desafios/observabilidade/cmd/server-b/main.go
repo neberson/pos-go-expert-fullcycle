@@ -1,26 +1,52 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
-	"os"
 
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/infra/web"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/infra/web/webserver"
 	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/internal/services"
+	"github.com/neberson/pos-go-expert-fullcycle/modulos/observabilidade/pkg/provider"
+	"github.com/spf13/viper"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 const portServer = ":8181"
 
+func init() {
+	viper.AutomaticEnv()
+}
+
 func main() {
-	apiKey := os.Getenv("WEATHER_API_KEY")
+	apiKey := viper.GetString("WEATHER_API_KEY")
+
+	collectorURL := viper.GetString("OTEL_EXPORTER_OTLP_ENDPOINT")
+	if collectorURL == "" {
+		collectorURL = "localhost:4317"
+	}
+
+	tracerProvider, err := provider.InitProvider("service-b", collectorURL)
+	if err != nil {
+		log.Fatalf("failed to initialization provider: %v", err)
+	}
+
+	defer func() {
+		if err := tracerProvider.Shutdown(context.Background()); err != nil {
+			log.Printf("Error disabling tracer provider.: %v", err)
+		}
+	}()
+
 	cepService := services.NewCepService()
 	weatherService := services.NewWeatherService(apiKey)
 	externalCall := services.NewExternalCallService("")
 	webWeatherHandler := web.NewWebWeatherHandler(cepService, weatherService, externalCall)
 
 	webserver := webserver.NewWebServer(portServer)
-	webserver.AddHandler(http.MethodGet, "/weather/{id}", webWeatherHandler.GetWeatherHandler)
+	otelHandler := otelhttp.NewHandler(http.HandlerFunc(webWeatherHandler.GetWeatherHandler), "GetWeatherHandler")
+	webserver.AddHandler(http.MethodGet, "/weather/{id}", otelHandler.ServeHTTP)
 	fmt.Println("Starting server on port", portServer)
 	webserver.Start()
 }

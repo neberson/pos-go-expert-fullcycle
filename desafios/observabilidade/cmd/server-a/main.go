@@ -46,7 +46,7 @@ func main() {
 	webWeatherHandler := web.NewWebWeatherHandler(cepService, weatherService, externalCall)
 
 	webserver := webserver.NewWebServer(portServer)
-	otelHandler := otelhttp.NewHandler(http.HandlerFunc(webWeatherHandler.PostWeatherHandler), "WeatherHandler")
+	otelHandler := otelhttp.NewHandler(http.HandlerFunc(webWeatherHandler.PostWeatherHandler), "PostWeatherHandler")
 	webserver.AddHandler(http.MethodPost, "/weather", otelHandler.ServeHTTP)
 
 	fmt.Println("Starting server on port", portServer)
