@@ -1,128 +1,144 @@
-# Weather by CEP (Go + Cloud Run)
+# Sistema de Temperatura por CEP — Observabilidade com OTEL e Zipkin
 
-Sistema em Go que recebe um CEP (8 dígitos), identifica a cidade via ViaCEP e retorna o clima atual (temperaturas em Celsius, Fahrenheit e Kelvin) consultando a WeatherAPI. O serviço está publicado no Google Cloud Run e também pode ser executado localmente via Docker Compose.
+Este projeto implementa dois serviços em Go:
 
-- Demo (Cloud Run, exemplo de sucesso):  
-  https://weather-api-on-d5bzjlhlkq-uc.a.run.app/weather/75915000
+- **Serviço A**: Recebe um CEP via POST, valida o input e encaminha para o Serviço B.
+- **Serviço B**: Recebe o CEP, consulta a cidade via ViaCEP, obtém a temperatura atual via WeatherAPI e retorna as temperaturas em Celsius, Fahrenheit, Kelvin, juntamente com o nome da cidade.
 
-## Objetivo
+A solução implementa tracing distribuído com OpenTelemetry (OTEL) e Zipkin, permitindo rastrear as requisições ponta a ponta entre os serviços.
 
-- Receber CEP válido de 8 dígitos.
-- Buscar a localização (cidade) via ViaCEP.
-- Consultar temperaturas atuais na WeatherAPI.
-- Retornar as temperaturas em:
-  - Celsius (C)
-  - Fahrenheit (F = C \* 1.8 + 32)
-  - Kelvin (K = C + 273)
+---
 
-## Requisitos de resposta
-
-- Sucesso
-  - HTTP 200
-  - Body: { "temp_C": 28.5, "temp_F": 83.3, "temp_K": 301.5 }
-- Falha (CEP inválido — formato diferente de 8 dígitos)
-  - HTTP 422
-  - Body: { "message": "invalid zipcode" }
-- Falha (CEP não encontrado)
-  - HTTP 404
-  - Body: { "message": "can not find zipcode" }
-
-## Endpoint
-
-- GET /weather/{cep}
-  - Parâmetros:
-    - cep: string com 8 dígitos (somente números)
-  - Exemplo:
-    - GET /weather/75915000
-
-## Execução local
-
-Você pode rodar a aplicação localmente com Docker Compose. A aplicação expõe a porta 8080 por padrão.
-
-1. Crie um arquivo .env na raiz do projeto com sua chave da WeatherAPI (https://www.weatherapi.com/):
+## Arquitetura
 
 ```
-WEATHER_API_KEY=coloque_sua_chave_aqui
+[Usuário] → [Serviço A] → [Serviço B] → [ViaCEP/WeatherAPI]
+                        ↘
+                        [OTEL Collector + Zipkin]
 ```
 
-2. Suba a aplicação:
+- **Serviço A**: expõe `/weather` (POST), valida o CEP e repassa para o Serviço B.
+- **Serviço B**: expõe `/weather/{cep}` (GET), orquestra as chamadas externas e retorna o resultado.
+- **OTEL Collector + Zipkin**: coletam e exibem os traces das requisições.
 
-- Windows PowerShell:
+---
 
-  - docker compose up --build
+## Endpoints
 
-- Alternativa sem .env:
-  - PowerShell
-    - $env:WEATHER_API_KEY="coloque_sua_chave_aqui"
-    - docker compose up --build
+### Serviço A
 
-O serviço ficará disponível em:
+- **POST /weather**
+  - Body: `{ "cep": "29902555" }`
+  - Valida se o CEP é uma string de 8 dígitos.
+  - Encaminha para o Serviço B.
+  - Respostas:
+    - **422**: `{ "message": "invalid zipcode" }` (CEP inválido)
+    - **200**: `{ "city": "São Paulo", "temp_C": 28.5, "temp_F": 83.3, "temp_K": 301.5 }` (sucesso)
+    - **404**: `{ "message": "can not find zipcode" }` (CEP não encontrado)
 
-- http://localhost:8080/weather/75915000
+### Serviço B
 
-### Testes rápidos (HTTP)
+- **GET /weather/{cep}**
+  - Parâmetro: `cep` (string de 8 dígitos)
+  - Busca cidade via ViaCEP e temperatura via WeatherAPI.
+  - Respostas:
+    - **422**: `{ "message": "invalid zipcode" }`
+    - **200**: `{ "city": "São Paulo", "temp_C": 28.5, "temp_F": 83.3, "temp_K": 301.5 }`
+    - **404**: `{ "message": "can not find zipcode" }`
 
-Use a coleção em api/weather.http (VS Code + extensão “REST Client”) ou curl:
+---
 
-- Sucesso:
-  - curl http://localhost:8080/weather/75915000
-- CEP inválido:
-  - curl http://localhost:8080/weather/75915-000
-  - curl http://localhost:8080/weather/75915
-  - curl http://localhost:8080/weather/7591500000
-- CEP não encontrado:
-  - curl http://localhost:8080/weather/00000000
+## Observabilidade
 
-## Deploy (Cloud Run)
+- **Tracing distribuído**: Implementado com OpenTelemetry (OTEL) e Zipkin.
+- **Spans**: Medem o tempo de resposta das chamadas ao ViaCEP e WeatherAPI.
+- **Collector**: O OTEL Collector recebe os traces dos dois serviços e exporta para o Zipkin.
 
-O serviço está publicado e acessível publicamente:
+Acesse o Zipkin em [http://localhost:9411](http://localhost:9411) para visualizar os traces.
 
-- Base: https://weather-api-on-d5bzjlhlkq-uc.a.run.app
-- Exemplo:
-  - https://weather-api-on-d5bzjlhlkq-uc.a.run.app/weather/75915000
+---
 
-Notas:
+## Como rodar o projeto (ambiente de desenvolvimento)
 
-- O serviço foi containerizado (Dockerfile multi-stage) e implantado no Cloud Run.
-- A chave da WeatherAPI é lida via variável de ambiente WEATHER_API_KEY (configure-a como variável de ambiente no serviço do Cloud Run).
+1. **Pré-requisitos**:
 
-## Ambiente e configuração
+   - Docker e Docker Compose instalados.
+   - Chave da WeatherAPI (cadastre-se em https://www.weatherapi.com/).
 
-- Variáveis de ambiente:
-  - WEATHER_API_KEY (obrigatória): chave da WeatherAPI.
+2. **Configuração**:
 
-## Desenvolvimento
+   - Crie um arquivo `.env` na raiz do projeto:
+     ```
+     WEATHER_API_KEY=sua_chave_weatherapi
+     ```
+   - (Opcional) Defina a variável de ambiente manualmente:
+     - PowerShell: `$env:WEATHER_API_KEY="sua_chave_weatherapi"`
 
-- Go (binário principal):
+3. **Suba os serviços**:
 
-  - cmd/server/main.go
+   ```sh
+   docker compose up --build
+   ```
 
-- Build local (sem Docker), se desejar:
+4. **Testes rápidos**:
 
-  - go mod tidy
-  - go run ./cmd/server/main.go
+   - **Serviço A (POST):**
 
-- Executar testes:
-  - go test ./...
+     ```http
+     POST http://localhost:8080/weather
+     Content-Type: application/json
 
-## Docker
+     {
+       "cep": "75915000"
+     }
+     ```
 
-- Dockerfile:
+   - **Serviço B (GET):**
 
-  - Multi-stage build (golang para build, alpine para runtime).
-  - Binário estático para execução em container leve.
+     ```http
+     GET http://localhost:8181/weather/75915000
+     ```
 
-- Docker Compose:
-  - Sobe a aplicação expondo 8080:8080.
-  - Encaminha WEATHER_API_KEY do seu ambiente/.env para o container.
+   - Exemplos de respostas e testes estão em [api/weather-a.http](api/weather-a.http) e [api/weather-b.http](api/weather-b.http).
 
-## Troubleshooting
+5. **Acompanhe os traces**:
+   - Acesse [http://localhost:9411](http://localhost:9411) para visualizar os traces no Zipkin.
 
-- 422 invalid zipcode: confirme que o CEP tem exatamente 8 dígitos numéricos.
-- 404 can not find zipcode: CEP não encontrado na ViaCEP.
-- Container não inicia: verifique se a variável WEATHER_API_KEY está definida corretamente.
+---
+
+## Respostas esperadas
+
+- **Sucesso**:
+  ```json
+  {
+    "city": "São Paulo",
+    "temp_C": 28.5,
+    "temp_F": 83.3,
+    "temp_K": 301.5
+  }
+  ```
+- **CEP inválido**:
+  ```json
+  { "message": "invalid zipcode" }
+  ```
+- **CEP não encontrado**:
+  ```json
+  { "message": "can not find zipcode" }
+  ```
+
+---
+
+## Observações
+
+- O tracing distribuído está implementado entre os serviços, com spans para as chamadas externas.
+- O projeto utiliza multi-stage Dockerfiles para imagens leves.
+- O OTEL Collector e Zipkin são orquestrados via Docker Compose.
+
+---
 
 ## Referências
 
-- ViaCEP: https://viacep.com.br/
-- WeatherAPI: https://www.weatherapi.com/
+- [ViaCEP](https://viacep.com.br/)
+- [WeatherAPI](https://www.weatherapi.com/)
+- [OpenTelemetry](https://opentelemetry.io/)
+- [Zipkin](https://zipkin.io/)
