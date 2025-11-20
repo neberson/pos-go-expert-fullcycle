@@ -55,6 +55,7 @@ func (w *GetWeatherUseCase) Execute(input dto.CepInputDto) (dto.WeatherOutputDto
 	}
 
 	weatherOutputDto := dto.WeatherOutputDto{
+		City:         postalAddress.Localidade,
 		TemperatureC: weather.Current.TempC,
 		TemperatureF: weather.ToFahrenheit(),
 		TemperatureK: weather.ToKelvin(),
