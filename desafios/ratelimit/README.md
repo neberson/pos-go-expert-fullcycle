@@ -52,7 +52,26 @@ TOKEN_EXPIRES=abc123:1     # Expiração por token (token:expira, separados por 
   internal server error: rate limiter unavailable
   ```
 
-## Docker Compose (Redis)
+## Docker Compose (Execução completa)
+
+O projeto já possui um `docker-compose.yml` pronto para subir tanto o Redis quanto a aplicação Go.
+
+### Subindo tudo com Docker Compose
+
+```sh
+docker compose up --build
+```
+
+Isso irá:
+
+- Buildar a aplicação Go usando o Dockerfile
+- Subir o Redis e a aplicação já configurada com as variáveis do rate limiter
+
+Acesse a aplicação em `http://localhost:8080/`.
+
+---
+
+#### Exemplo do arquivo `docker-compose.yml`:
 
 ```yaml
 version: "3.8"
@@ -62,12 +81,22 @@ services:
     ports:
       - "6379:6379"
     restart: always
-```
 
-Salve como `docker-compose.yml` e rode:
-
-```sh
-docker-compose up -d
+  ratelimit:
+    build: .
+    depends_on:
+      - redis
+    environment:
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      - IP_LIMIT=10
+      - IP_EXPIRE_SECONDS=1
+      - BLOCK_SECONDS=300
+      - TOKEN_LIMITS=abc123:100
+      - TOKEN_EXPIRES=abc123:1
+    ports:
+      - "8080:8080"
 ```
 
 ## Testes

@@ -5,3 +5,19 @@ services:
     ports:
       - "6379:6379"
     restart: always
+
+  ratelimit:
+    build: .
+    depends_on:
+      - redis
+    environment:
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      - IP_LIMIT=10
+      - IP_EXPIRE_SECONDS=1
+      - BLOCK_SECONDS=300
+      - TOKEN_LIMITS=abc123:100
+      - TOKEN_EXPIRES=abc123:1
+    ports:
+      - "8080:8080"
