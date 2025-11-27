@@ -34,14 +34,22 @@ TOKEN_EXPIRES=abc123:1     # Expiração por token (token:expira, separados por 
 
 1. Suba o Redis (veja docker-compose abaixo).
 2. Execute o servidor:
+
    ```sh
    go run ./cmd/ratelimit/main.go
    ```
+
 3. Faça requisições para `http://localhost:8080/` com ou sem header `API_KEY`.
 
-- Se o limite for excedido, resposta HTTP 429:
+- **Se o limite for excedido:** resposta HTTP 429:
+
   ```
   you have reached the maximum number of requests or actions allowed within a certain time frame
+  ```
+
+- **Se o Redis estiver offline ou ocorrer erro interno:** resposta HTTP 500:
+  ```
+  internal server error: rate limiter unavailable
   ```
 
 ## Docker Compose (Redis)

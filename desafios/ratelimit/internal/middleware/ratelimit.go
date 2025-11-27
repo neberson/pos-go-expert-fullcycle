@@ -4,11 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/neberson/pos-go-expert-fullcycle/desafios/ratelimit/internal/limiter"
-)
-
-import (
 	"errors"
+
+	"github.com/neberson/pos-go-expert-fullcycle/desafios/ratelimit/internal/limiter"
 )
 
 func RateLimitMiddleware(l *limiter.Limiter) func(http.Handler) http.Handler {
