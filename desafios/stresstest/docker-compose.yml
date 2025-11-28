@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  stresstest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: stresstest:latest
+    entrypoint: ["/stresstest"]
+    # Exemplo de uso, substitua os argumentos conforme necessário
+    command: ["--url=http://google.com", "--requests=1000", "--concurrency=10"]
