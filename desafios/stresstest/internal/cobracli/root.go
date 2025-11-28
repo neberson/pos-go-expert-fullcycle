@@ -38,7 +38,7 @@ var rootCmd = &cobra.Command{
 			Concurrency: concurrency,
 		}
 		result := stresstest.Run(cfg)
-		report.Print(cfg.Requests, result.StatusCount, result.Elapsed.String())
+		report.Print(cfg.Requests, result.StatusCount, result.Elapsed.String(), result.ErrorTypes)
 	},
 }
 

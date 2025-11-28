@@ -8,6 +8,7 @@ import (
 
 type Result struct {
 	StatusCount map[int]int
+	ErrorTypes  map[string]int
 	Elapsed     time.Duration
 }
 
@@ -20,6 +21,7 @@ type Config struct {
 func Run(cfg Config) Result {
 	start := time.Now()
 	statusCount := make(map[int]int)
+	errorTypes := make(map[string]int)
 	var statusMu sync.Mutex
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, cfg.Concurrency)
@@ -34,6 +36,7 @@ func Run(cfg Config) Result {
 			if err != nil {
 				statusMu.Lock()
 				statusCount[0]++
+				errorTypes[err.Error()]++
 				statusMu.Unlock()
 				return
 			}
@@ -47,6 +50,7 @@ func Run(cfg Config) Result {
 	elapsed := time.Since(start)
 	return Result{
 		StatusCount: statusCount,
+		ErrorTypes:  errorTypes,
 		Elapsed:     elapsed,
 	}
 }
